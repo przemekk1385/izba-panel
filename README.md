@@ -1,4 +1,6 @@
-# frontend
+# IEPAdmin
+
+Allows to manage posts, entities and chamber's members.
 
 ## Project setup
 ```
