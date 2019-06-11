@@ -54,9 +54,12 @@ export default new Vuex.Store({
       const headers = {
         Authorization: `Token ${state.token}`,
       };
-      await Auth.logout(headers);
-      localStorage.clear();
-      commit('authWipe');
+      await Auth.logout(headers)
+        .catch(() => {})
+        .finally(() => {
+          localStorage.clear();
+          commit('authWipe');
+        });
     },
   },
   getters: {
