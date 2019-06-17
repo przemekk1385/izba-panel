@@ -45,63 +45,42 @@
             v-model="content"
           ></v-textarea>
         </v-flex>
-        <v-flex>
-          <v-layout row>
-            <v-flex>
-              <v-text-field
-                clearable
-                :disabled="!header.name"
-                label="Obrazek nagłówka"
-                prepend-icon="image"
-                readonly
-                v-model="header.name"
-                @click:clear="header.name = undefined"
-              >
-              </v-text-field>
-            </v-flex>
-            <v-flex shrink>
-              <v-btn
-                color="blue darken-4"
-                dark
-                flat
-                small
-                class="mt-3"
-                @click.stop="$_PostsForm_propagateClick('fileInputHeader')"
-              >
-                Przeglądaj
-              </v-btn>
-              <input
-                ref="fileInputHeader"
-                accept="image/*"
-                style="display: none"
-                type="file"
-                @change="$_PostsForm_onPickSingle($event)"
-              />
-            </v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex>
-          <v-switch
-            color="blue darken-4"
-            prepend-icon="play_circle_outline"
-            label="wyświetl w sliderze"
-            v-model="slider"
-          />
-        </v-flex>
+        <v-flex text-xs-right>
 
-        <!--
-          attachments
-        //-->
+          <!--
+            header
+          //-->
 
-        <v-flex
-          text-xs-right
-          class="mb-3"
-        >
+          <span class="caption grey--text">
+            {{ header ? header : '' }}
+          </span>
           <v-btn
             color="blue darken-4"
             dark
             flat
-            small
+            :loading="upload"
+            class="ml-3"
+            @click="$_PostsForm_propagateClick('fileInputHeader')"
+          >
+            <v-icon left>image</v-icon>
+            Nagłówek
+          </v-btn>
+          <input
+            ref="fileInputHeader"
+            accept="image/*"
+            style="display: none"
+            type="file"
+            @change="$_PostsForm_onPickSingle($event)"
+          />
+
+          <!--
+            attachments button
+          //-->
+
+          <v-btn
+            color="blue darken-4"
+            dark
+            flat
             @click="$_PostsForm_propagateClick('fileInputAttachments')"
           >
             <v-icon left>attachment</v-icon>
@@ -115,6 +94,11 @@
             @change="$_PostsForm_onPickMultiple($event)"
           />
         </v-flex>
+
+        <!--
+          attachments list
+        //-->
+
         <v-flex
           v-for="(attachment, index) in attachmentSet"
           :key="index"
@@ -174,6 +158,19 @@
               </v-btn>
             </v-flex>
           </v-layout>
+        </v-flex>
+
+        <!--
+          slider
+        //-->
+
+        <v-flex>
+          <v-switch
+            color="blue darken-4"
+            prepend-icon="play_circle_outline"
+            label="wyświetl w sliderze"
+            v-model="slider"
+          />
         </v-flex>
 
         <!--
@@ -342,12 +339,13 @@
 import Vue from 'vue';
 
 import { Factory } from '@/api/factory';
-import { isFile, isFileImage } from '@/utils/validators';
+import { isFile } from '@/utils/validators';
 import ADatetimePicker from '@/components/ADatetimePicker.vue';
 
 const Attachments = Factory.get('attachments');
 const Entities = Factory.get('entities');
 const Posts = Factory.get('posts');
+const Upload = Factory.get('upload');
 export default {
   name: 'post-form',
   components: {
@@ -378,13 +376,11 @@ export default {
       id: undefined,
       title: undefined,
       content: undefined,
-      header: {
-        file: undefined,
-        name: undefined,
-      },
+      header: undefined,
       slider: false,
       // progress
       progress: false,
+      upload: false,
     };
   },
   watch: {
@@ -418,10 +414,8 @@ export default {
       const file = event.target.files[0];
       if (file) {
         const { name } = file;
-        this.header = {
-          file,
-          name,
-        };
+        this.header = name;
+        this.uploadFile(file);
         // TODO preview, use FileReader()
       }
     },
@@ -522,7 +516,7 @@ export default {
         this.title = title;
         this.content = content;
         this.attachmentSet = attachmentSet;
-        this.header.name = header;
+        this.header = header;
         this.slider = slider;
         if (eventDetails) {
           this.eventDetailsShow = true;
@@ -530,12 +524,7 @@ export default {
         }
         if (eventParticipantsSet.length) {
           this.eventParticipantsSetShow = true;
-          this.eventParticipantsSet = eventParticipantsSet.map(
-            ({ entities, label }) => ({
-              entities: entities.map(entity => entity.id),
-              label,
-            }),
-          );
+          this.eventParticipantsSet = eventParticipantsSet;
         }
       } else {
         const { status } = data;
@@ -620,6 +609,34 @@ export default {
       }
       this.progress = false;
     },
+    async uploadFile(file) {
+      this.upload = true;
+      const headers = {
+        Authorization: `Token ${this.$store.getters.token}`,
+        'Content-type': 'multipart/form-data',
+      };
+      const payload = new FormData();
+      payload.append('file', file, this.header);
+      const alert = await Upload.put(payload, headers)
+        .then((r) => {
+          const { status } = r;
+          return {
+            message: `Wysłano grafikę nagłówka (kod ${status})`,
+            type: 'success',
+            show: true,
+          };
+        })
+        .catch((r) => {
+          const { request: { status } } = r;
+          return {
+            message: `Wystąpił błąd (kod ${status})`,
+            type: 'error',
+            show: true,
+          };
+        });
+      this.alerts.push(alert);
+      this.upload = false;
+    },
     eventParticipantsAdd() {
       const last = this.eventParticipantsSet.length ? this.eventParticipantsSet.length - 1 : 0;
       if (!this.eventParticipantsSet.length || (this.eventParticipantsSet[last].label !== ''
@@ -658,7 +675,7 @@ export default {
       if (this.$refs.form.validate()) {
         const headers = {
           Authorization: `Token ${this.$store.getters.token}`,
-          'Content-type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         };
         const { id } = this.$route.params;
         if (id === 'new') {
@@ -683,24 +700,19 @@ export default {
       return payload;
     },
     payloadPost() {
-      const payload = new FormData();
-      payload.append('title', this.title);
-      payload.append('content', this.content);
-      if (this.header.name && isFileImage(this.header.file)) {
-        payload.append('header', this.header.file, this.header.name);
+      const payload = {
+        title: this.title,
+        content: this.content,
+        slider: this.slider,
+      };
+      if (this.header && !/^https?:\/\/.+\.[a-z]{1,4}$/.test(this.header)) {
+        payload.header = this.header;
       }
-      payload.append('slider', this.slider);
       if (this.eventDetailsShow) {
-        payload.append(
-          'eventdetails_data',
-          JSON.stringify(this.eventDetails),
-        );
+        payload.eventdetails = this.eventDetails;
       }
       if (this.eventParticipantsSetShow) {
-        payload.append(
-          'eventparticipants_set_data',
-          JSON.stringify(this.eventParticipantsSet),
-        );
+        payload.eventparticipants_set = this.eventParticipantsSet;
       }
       return payload;
     },
