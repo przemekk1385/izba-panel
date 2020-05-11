@@ -222,7 +222,10 @@ export default {
       // publicPath: process.env.BASE_URL,
       rules: {
         required: v => !!v || 'Pole wymagane',
-        validUrl: v => /^https?:\/\/([a-z\d-]+\.)+([a-z]{2,}\/)([a-z]+\/)*$/.test(v) || 'Nieprawidłowy URL',
+        validUrl: v =>
+          /^#$/.test(v) ||
+          /^https?:\/\/([a-z\d-]+\.)+([a-z]{2,}\/)([a-z]+\/)*$/.test(v) ||
+          "Nieprawidłowy URL"
       },
       // alerts
       alerts: [],
