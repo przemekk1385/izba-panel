@@ -18,18 +18,18 @@
   ]
 */
 
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from "vue";
+import Vuex from "vuex";
 
-import { Factory } from '@/api/factory';
+import { Factory } from "@/api/factory";
 
 Vue.use(Vuex);
 
-const Auth = Factory.get('auth');
+const Auth = Factory.get("auth");
 export default new Vuex.Store({
   state: {
-    token: localStorage.getItem('token') || undefined,
-    username: localStorage.getItem('username') || '',
+    token: localStorage.getItem("token") || undefined,
+    username: localStorage.getItem("username") || "",
   },
   mutations: {
     authSuccess(state, { token, username }) {
@@ -38,7 +38,7 @@ export default new Vuex.Store({
     },
     authWipe(state) {
       state.token = undefined;
-      state.username = '';
+      state.username = "";
     },
   },
   actions: {
@@ -46,9 +46,9 @@ export default new Vuex.Store({
       const { data } = await Auth.login(credentials);
       const { auth_token: token } = data;
       const { username } = credentials;
-      localStorage.setItem('token', token);
-      localStorage.setItem('username', username);
-      commit('authSuccess', { token, username });
+      localStorage.setItem("token", token);
+      localStorage.setItem("username", username);
+      commit("authSuccess", { token, username });
     },
     async logout({ commit, state }) {
       const headers = {
@@ -58,12 +58,12 @@ export default new Vuex.Store({
         .catch(() => {})
         .finally(() => {
           localStorage.clear();
-          commit('authWipe');
+          commit("authWipe");
         });
     },
   },
   getters: {
-    token: state => state.token,
-    username: state => state.username,
+    token: (state) => state.token,
+    username: (state) => state.username,
   },
 });

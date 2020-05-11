@@ -1,6 +1,6 @@
-import Base from '@/api/base';
+import Base from "@/api/base";
 
-const resource = 'posts/';
+const resource = "posts/";
 export default {
   create(payload, headers) {
     return Base.post(resource, payload, { headers });

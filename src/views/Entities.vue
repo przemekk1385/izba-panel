@@ -1,17 +1,7 @@
 <template>
-  <v-container
-    fluid
-  >
-    <h1 class="display-1 grey--text text--lighten-1 text-uppercase">
-      {{ label }}
-    </h1>
-    <v-progress-linear
-      color="blue darken-4"
-      :indeterminate="true"
-      height="20"
-      v-if="progress"
-    >
-    </v-progress-linear>
+  <v-container fluid>
+    <h1 class="display-1 grey--text text--lighten-1 text-uppercase">{{ label }}</h1>
+    <v-progress-linear color="blue darken-4" :indeterminate="true" height="20" v-if="progress"></v-progress-linear>
     <!-- alert //-->
     <v-alert
       dismissible
@@ -20,14 +10,9 @@
       v-for="(alert, index) in alerts"
       :key="index"
       v-model="alert.show"
-    >
-        {{ alert.message }}
-    </v-alert>
+    >{{ alert.message }}</v-alert>
     <v-form ref="form">
-      <v-layout
-        column
-        class="my-4"
-      >
+      <v-layout column class="my-4">
         <v-flex>
           <v-text-field
             :counter="100"
@@ -59,8 +44,7 @@
                 :rules="[rules.required]"
                 v-model="image.name"
                 @click:clear="image.name = undefined"
-              >
-              </v-text-field>
+              ></v-text-field>
             </v-flex>
             <v-flex shrink>
               <v-btn
@@ -70,9 +54,7 @@
                 small
                 class="mt-3"
                 @click="$_Entities_propagateClick()"
-              >
-                Przeglądaj
-              </v-btn>
+              >Przeglądaj</v-btn>
               <input
                 ref="fileInputImage"
                 accept="image/*"
@@ -84,54 +66,23 @@
           </v-layout>
         </v-flex>
         <v-flex text-xs-right>
-          <v-btn
-            color="blue darken-4"
-            dark
-            :disabled="progress"
-            @click="formSubmit()"
-          >
-            <v-icon
-              left
-            >
-              {{ !$route.params.id ? 'add' : 'edit' }}
-            </v-icon>
+          <v-btn color="blue darken-4" dark :disabled="progress" @click="formSubmit()">
+            <v-icon left>{{ !$route.params.id ? 'add' : 'edit' }}</v-icon>
             {{ !$route.params.id ? 'Dodaj' : 'Edytuj' }}
           </v-btn>
-          <v-btn
-            color="red darken-4"
-            dark
-            @click="$refs.form.reset()"
-          >
-            <v-icon
-              left
-            >
-              clear
-            </v-icon>
-            wyczyść
+          <v-btn color="red darken-4" dark @click="$refs.form.reset()">
+            <v-icon left>clear</v-icon>wyczyść
           </v-btn>
         </v-flex>
       </v-layout>
     </v-form>
-    <v-layout
-      flex
-      wrap
-    >
-      <v-flex
-        xs12
-        sm4
-        md3
-        v-for="item in items"
-        :key="item.id"
-        class="pa-1"
-      >
+    <v-layout flex wrap>
+      <v-flex xs12 sm4 md3 v-for="item in items" :key="item.id" class="pa-1">
         <v-card>
-          <v-img
-            contain
-            :src="item.image"
-          >
-          </v-img>
+          <v-img contain :src="item.image"></v-img>
           <v-card-text>
-            <span class="subheading">{{ item.name }}</span><br />
+            <span class="subheading">{{ item.name }}</span>
+            <br />
             <a :href="`${item.url}`">{{ item.url }}</a>
           </v-card-text>
           <v-card-actions>
@@ -145,60 +96,27 @@
                 params: { resource: $route.params.resource, id: item.id }}"
               class="Edytuj"
               title="Edytuj"
-              >
-              <v-icon
-                dark
-                small
-              >
-                edit
-              </v-icon>
-            </v-btn>
-            <v-dialog
-              max-width="360px"
-              v-model="item.dialog"
             >
+              <v-icon dark small>edit</v-icon>
+            </v-btn>
+            <v-dialog max-width="360px" v-model="item.dialog">
               <template v-slot:activator="{ on }">
-                <v-btn
-                  color="red darken-4"
-                  dark
-                  icon
-                  small
-                  class="Usuń"
-                  title="Usuń"
-                  v-on="on"
-                >
-                  <v-icon
-                    dark
-                    small
-                  >
-                    delete
-                  </v-icon>
+                <v-btn color="red darken-4" dark icon small class="Usuń" title="Usuń" v-on="on">
+                  <v-icon dark small>delete</v-icon>
                 </v-btn>
               </template>
               <v-card>
                 <v-card-title class="headline grey--text text-lighten-1">
-                  <v-icon
-                    large
-                    left
-                  >
-                    warning
-                  </v-icon>
-                  Wymagane potwierdzenie
+                  <v-icon large left>warning</v-icon>Wymagane potwierdzenie
                 </v-card-title>
                 <v-card-text>
                   Usunięcie jest nieodwracalne.
-                  Kliknij <span class="red--text text--darken-4">Potwierdź</span>
+                  Kliknij
+                  <span class="red--text text--darken-4">Potwierdź</span>
                   aby kontynuować.
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn
-                    block
-                    dark
-                    class="red darken-4"
-                    @click="entitiesDestroy(item.id)"
-                  >
-                    Potwierdź
-                  </v-btn>
+                  <v-btn block dark class="red darken-4" @click="entitiesDestroy(item.id)">Potwierdź</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -210,18 +128,18 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import Vue from "vue";
 
-import { Factory } from '@/api/factory';
-import { isFileImage } from '@/utils/validators';
+import { Factory } from "@/api/factory";
+import { isFileImage } from "@/utils/validators";
 
-const Entities = Factory.get('entities');
+const Entities = Factory.get("entities");
 export default {
   data() {
     return {
       // publicPath: process.env.BASE_URL,
       rules: {
-        required: v => !!v || 'Pole wymagane',
+        required: v => !!v || "Pole wymagane",
         validUrl: v =>
           /^#$/.test(v) ||
           /^https?:\/\/([a-z\d-]+\.)+([a-z]{2,}\/)([a-z]+\/)*$/.test(v) ||
@@ -232,23 +150,23 @@ export default {
       // entity
       image: {
         file: undefined,
-        name: undefined,
+        name: undefined
       },
       name: undefined,
       url: undefined,
       // entities
       items: [],
       // progress
-      progress: false,
+      progress: false
     };
   },
   computed: {
     label() {
       return {
-        members: 'Członkowie',
-        others: 'Podmioty',
+        members: "Członkowie",
+        others: "Podmioty"
       }[this.$route.params.type];
-    },
+    }
   },
   watch: {
     $route() {
@@ -259,7 +177,7 @@ export default {
       } else {
         this.$refs.form.reset();
       }
-    },
+    }
   },
   mounted() {
     this.entitiesList();
@@ -274,10 +192,10 @@ export default {
       const { name } = file;
       const fr = new FileReader();
       fr.readAsDataURL(file);
-      fr.addEventListener('load', () => {
+      fr.addEventListener("load", () => {
         this.image = {
           file,
-          name,
+          name
         };
       });
     },
@@ -294,13 +212,13 @@ export default {
         this.$refs.form.reset();
         this.alerts.push({
           message: `Dodano podmiot (id ${id})`,
-          type: 'success',
-          show: true,
+          type: "success",
+          show: true
         });
         // reload items
         const { type } = this.$route.params;
         const items = await Entities.list(type.slice(0, type.length - 1))
-          .then((r) => {
+          .then(r => {
             const { data: d } = r;
             return d.map(item => Vue.util.extend(item, { dialog: false }));
           })
@@ -310,8 +228,8 @@ export default {
         const { status } = data;
         this.alerts.push({
           message: `Wystąpił błąd (kod ${status})`,
-          type: 'error',
-          show: true,
+          type: "error",
+          show: true
         });
       }
       this.progress = false;
@@ -320,27 +238,29 @@ export default {
       this.dialog = false;
       this.progress = true;
       const headers = {
-        Authorization: `Token ${this.$store.getters.token}`,
+        Authorization: `Token ${this.$store.getters.token}`
       };
       const alert = await Entities.destroy(id, headers)
         .then(() => ({
           message: `Usunięto podmiot (id ${id})`,
-          type: 'success',
-          show: true,
+          type: "success",
+          show: true
         }))
-        .catch((r) => {
-          const { request: { status } } = r;
+        .catch(r => {
+          const {
+            request: { status }
+          } = r;
           return {
             message: `Wystąpił błąd (kod ${status})`,
-            type: 'error',
-            show: true,
+            type: "error",
+            show: true
           };
         });
       this.alerts.push(alert);
       // reload items
       const { type } = this.$route.params;
       const items = await Entities.list(type.slice(0, type.length - 1))
-        .then((r) => {
+        .then(r => {
           const { data: d } = r;
           return d.map(item => Vue.util.extend(item, { dialog: false }));
         })
@@ -352,7 +272,7 @@ export default {
       this.progress = true;
       const { type } = this.$route.params;
       const items = await Entities.list(type.slice(0, type.length - 1))
-        .then((r) => {
+        .then(r => {
           const { data: d } = r;
           return d.map(item => Vue.util.extend(item, { dialog: false }));
         })
@@ -374,8 +294,8 @@ export default {
         const { status } = data;
         this.alerts.push({
           message: `Wystąpił błąd (kod ${status})`,
-          type: 'error',
-          show: true,
+          type: "error",
+          show: true
         });
       }
       this.progress = false;
@@ -388,15 +308,18 @@ export default {
       if (status === 200) {
         this.alerts.push({
           message: `Zmieniono podmiot (id ${id})`,
-          type: 'success',
-          show: true,
+          type: "success",
+          show: true
         });
-        this.$router.push({ name: 'entities', params: { type: this.$route.params.type } });
+        this.$router.push({
+          name: "entities",
+          params: { type: this.$route.params.type }
+        });
       } else {
         this.alerts.push({
           message: `Wystąpił błąd (kod ${status})`,
-          type: 'error',
-          show: true,
+          type: "error",
+          show: true
         });
       }
       this.progress = false;
@@ -406,25 +329,28 @@ export default {
         const payload = new FormData();
         const headers = {
           Authorization: `Token ${this.$store.getters.token}`,
-          'Content-type': 'multipart/form-data',
+          "Content-type": "multipart/form-data"
         };
         const { id, type } = this.$route.params;
-        payload.append('name', this.name);
-        payload.append('url', this.url);
+        payload.append("name", this.name);
+        payload.append("url", this.url);
         if (isFileImage(this.image.file)) {
-          payload.append('image', this.image.file, this.image.name);
+          payload.append("image", this.image.file, this.image.name);
         }
-        payload.append('type', {
-          members: 1,
-          others: 2,
-        }[type]);
+        payload.append(
+          "type",
+          {
+            members: 1,
+            others: 2
+          }[type]
+        );
         if (!id) {
           this.entitiesCreate(payload, headers);
         } else {
           this.entitiesUpdate(id, payload, headers);
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
