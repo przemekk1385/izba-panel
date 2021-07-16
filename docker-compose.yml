@@ -1,0 +1,7 @@
+version: "3"
+services:
+  panel:
+    build:
+      context: .
+    ports:
+      - 1301:8080
