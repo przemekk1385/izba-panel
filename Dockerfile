@@ -1,11 +1,11 @@
-FROM node:lts-stretch
+FROM node:lts-alpine
+
+RUN mkdir -p /usr/local/src/app
+WORKDIR /usr/local/src/app
 
 RUN npm install -g http-server
 
-WORKDIR /app
-
-COPY package*.json ./
-
+COPY package*.json .
 RUN npm install
 
 COPY . .
